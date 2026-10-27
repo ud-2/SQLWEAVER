@@ -1,0 +1,10 @@
+# Build directory (CMake, objects, binaries, ANTLR jar & generated code)
+build/
+
+# Reports and temporary files
+output/
+
+# Editors & OS
+.vscode/
+.idea/
+.DS_Store
