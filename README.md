@@ -6,14 +6,14 @@ High-performance static analyzer, data lineage tracker, and security linter for 
 
 **SQLWeaver** implements a unidirectional pipeline where each stage has a single responsibility:
 
-| Pipeline Stage | Component | Input | Output | Responsibility |
-| :--- | :--- | :--- | :--- | :--- |
-| **Stage 1: Ingestion** | `Preprocessor` | Raw SQL text | `std::vector<SqlBlock>` | Normalizes CRLF to LF, splits code blocks on `/`, and indexes line offsets. |
-| **Stage 2: Lexing** | `LexerStreamer` | Block text | `CommonTokenStream` | Performs case-insensitive tokenization without mutating source token text. |
-| **Stage 3: Parsing** | `ParserWrapper` | `CommonTokenStream` | `ParseTree*` (AST) | Constructs the AST and captures syntax errors without aborting via panic-mode recovery. |
-| **Stage 4: Traversal**| `PlSqlVisitor` | `ParseTree*` | Domain events | Extracts table/routine references, tracks I/O context (Read/Write), and flags lint rules. |
-| **Stage 5: State** | `TableManager`<br>`ProcedureManager` | Domain events | Aggregated state | Deduplicates names (case-insensitive), merges I/O flags, and collects occurrences. |
-| **Stage 6: Output** | `Analyzer` (Facade)<br>`IRenderer` | Aggregated state | Markdown / JSON / CSV | Formats metadata and exits with return code `2` if critical security rules are violated. |
+| Pipeline Stage | Component | Responsibility |
+| :--- | :--- | :--- |
+| **Stage 1: Ingestion** | `Preprocessor` | Normalizes CRLF to LF, splits code blocks on `/`, and indexes line offsets. |
+| **Stage 2: Lexing** | `LexerStreamer` | Performs case-insensitive tokenization without mutating source token text. |
+| **Stage 3: Parsing** | `ParserWrapper` | the AST and captures syntax errors without aborting via panic-mode recovery. |
+| **Stage 4: Traversal**| `PlSqlVisitor` | Extracts table/routine references, tracks I/O context (Read/Write), and flags lint rules. |
+| **Stage 5: State** | `TableManager`<br>`ProcedureManager` | Deduplicates names (case-insensitive), merges I/O flags, and collects occurrences. |
+| **Stage 6: Output** | `Analyzer` (Facade)<br>`IRenderer` | Formats metadata and exits with return code `2` if critical security rules are violated. |
 
 ## 2. CI/CD Gate & Linter Rules
 
@@ -81,11 +81,11 @@ cmake --build build -j $(nproc)
 
 ## 5. Appendix: Fundamental Concepts
 
-| Concept | Definition | References |
-| :--- | :--- | :--- |
-| **Abstract Syntax Tree (AST)** | A hierarchical tree structure representing the syntactic elements of source code, ignoring formatting details. | [Wikipedia: Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) |
-| **Pimpl Idiom (Pointer to Implementation)** | A C++ design pattern that hides implementation details and external dependencies behind an opaque pointer to ensure stable ABI and reduce compile times. | [cppreference: Pimpl](https://en.cppreference.com/w/cpp/language/pimpl) |
-| **Visitor Pattern** | A design pattern that separates algorithms from the object structures they operate on, allowing new AST traversals without changing node classes. | [Refactoring Guru: Visitor Pattern](https://refactoring.guru/design-patterns/visitor) |
-| **Data Lineage** | The lifecycle tracking of data: origin, movements across tables/procedures, transformations, and consumption endpoints. | [Databricks: What is Data Lineage?](https://www.databricks.com/glossary/data-lineage) |
-| **Semantic Predicates** | ANTLR4 mechanisms evaluated at runtime to dynamically disable or enable specific parser rules based on context. | [ANTLR4 Documentation: Predicates](https://github.com/antlr/antlr4/blob/master/doc/predicates.md) |
-| **Soft Keywords (Non-Reserved)** | Lexical tokens that act as reserved keywords only inside specific clauses, while remaining ordinary identifiers elsewhere. | [PostgreSQL Docs: SQL Key Words](https://www.postgresql.org/docs/current/sql-keywords-appendix.html) |
+| Concept | References |
+| :--- | :--- |
+| **Abstract Syntax Tree (AST)** | [Wikipedia: Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) |
+| **Pimpl Idiom (Pointer to Implementation)** | [cppreference: Pimpl](https://en.cppreference.com/w/cpp/language/pimpl) |
+| **Visitor Pattern** | [Refactoring Guru: Visitor Pattern](https://refactoring.guru/design-patterns/visitor) |
+| **Data Lineage** | [Databricks: What is Data Lineage?](https://www.databricks.com/glossary/data-lineage) |
+| **Semantic Predicates** | [ANTLR4 Documentation: Predicates](https://github.com/antlr/antlr4/blob/master/doc/predicates.md) |
+| **Soft Keywords (Non-Reserved)** | [PostgreSQL Docs: SQL Key Words](https://www.postgresql.org/docs/current/sql-keywords-appendix.html) |
